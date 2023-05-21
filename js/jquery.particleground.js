@@ -247,7 +247,7 @@
 
         // If the two particles are in proximity, join them
         if (dist < options.proximity) {
-          ctx.lineWidth = Math.max(options.lineWidth * 10 / dist, options.lineWidth)
+          ctx.lineWidth = Math.min(options.lineWidth * 10 / dist, options.lineWidth)
           ctx.moveTo(this.position.x + this.parallaxOffsetX, this.position.y + this.parallaxOffsetY);
           if (options.curvedLines) {
             ctx.quadraticCurveTo(Math.max(p2.position.x, p2.position.x), Math.min(p2.position.y, p2.position.y), p2.position.x + p2.parallaxOffsetX, p2.position.y + p2.parallaxOffsetY);
@@ -384,7 +384,7 @@
     dotColor: '#666666',
     lineColor: '#666666',
     particleRadius: 7, // Dot size
-    lineWidth: 1.2,
+    lineWidth: 1.5,
     curvedLines: false,
     proximity: 100, // How close two dots need to be before they join
     parallax: true,
