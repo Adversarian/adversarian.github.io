@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Half the Square Root</title>
+<meta name="description" content="Why a researcher's h-index lands near half the square root of their total citations — built up from what the h-index actually measures.">
+<link rel="shortcut icon" type="image/png" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Spectral:ital,wght@0,300;0,400;0,600;1,400&display=swap">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+    } catch (e) { }
+  })();
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<style>
+:root{
+  --paper:#E7ECEA; --surface:#F8FAF9; --sunk:#DCE3E0;
+  --ink:#0D1A19; --body:#2A3B39; --muted:#5C6E6B; --faint:#879895;
+  --rule:#C6D2CE; --hair:#D8E0DD;
+  --curve:#0C6663; --core:#B07816; --tail:#66808E;
+  --curve-soft:rgba(12,102,99,.16); --core-soft:rgba(176,120,22,.30); --tail-soft:rgba(102,128,142,.16);
+  --link:#0C6663; --focus:#B07816;
+  --shadow:0 1px 2px rgba(13,26,25,.05), 0 8px 24px -14px rgba(13,26,25,.28);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B1312; --surface:#131E1D; --sunk:#080E0D;
+    --ink:#E7F0ED; --body:#C2D2CE; --muted:#8DA19D; --faint:#657A76;
+    --rule:#25332F; --hair:#1B2726;
+    --curve:#3FBDB6; --core:#E0AC49; --tail:#93AAB7;
+    --curve-soft:rgba(63,189,182,.16); --core-soft:rgba(224,172,73,.26); --tail-soft:rgba(147,170,183,.14);
+    --link:#3FBDB6; --focus:#E0AC49;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 26px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B1312; --surface:#131E1D; --sunk:#080E0D;
+  --ink:#E7F0ED; --body:#C2D2CE; --muted:#8DA19D; --faint:#657A76;
+  --rule:#25332F; --hair:#1B2726;
+  --curve:#3FBDB6; --core:#E0AC49; --tail:#93AAB7;
+  --curve-soft:rgba(63,189,182,.16); --core-soft:rgba(224,172,73,.26); --tail-soft:rgba(147,170,183,.14);
+  --link:#3FBDB6; --focus:#E0AC49;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 26px -16px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--body);
+  font-family:"Spectral",Georgia,"Times New Roman",serif;
+  font-size:17px; line-height:1.68; font-weight:400;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%}
+[hidden]{display:none!important}
+.wrap{max-width:1000px; margin:0 auto; padding:0 24px 96px}
+.prose{max-width:41rem; margin-left:auto; margin-right:auto}
+
+/* ---------- type ---------- */
+h1,h2{
+  font-family:"Instrument Serif",Georgia,serif; font-weight:400; color:var(--ink);
+  text-wrap:balance; margin:0; letter-spacing:-.004em;
+}
+h1{font-size:clamp(2.5rem,6.4vw,3.9rem); line-height:1.08}
+h2{font-size:clamp(1.7rem,3.4vw,2.05rem); line-height:1.16; margin-bottom:.35rem}
+h3{font-family:"Spectral",Georgia,serif; font-weight:600; font-size:1.02rem; color:var(--ink); margin:0 0 .35rem}
+p{margin:0 0 1.05em}
+.prose p+p{margin-top:-.15em}
+strong{color:var(--ink); font-weight:600}
+a{color:var(--link); text-decoration:none; border-bottom:1px solid color-mix(in srgb, var(--link) 35%, transparent)}
+a:hover{border-bottom-color:var(--link)}
+:focus-visible{outline:2px solid var(--focus); outline-offset:3px; border-radius:2px}
+
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:.688rem; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--muted);
+}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- KaTeX ---------- */
+.katex{font-size:1.06em}
+.katex-display{margin:1.7rem 0; overflow-x:auto; overflow-y:hidden; padding:.25rem 0}
+/* the hero equation always fits (it shrinks with the viewport via the clamp
+   below), so it must not be a scroll container — as a flex item its width
+   rounds down 2px below the glyph content and trips a scrollbar */
+.hero-eq .katex-display{margin:0; overflow:visible; padding:0}
+.hero-eq .katex{font-size:clamp(2.9rem,8.4vw,4.6rem)}
+.big-eq .katex{font-size:1.34em}
+
+/* ---------- site chrome ---------- */
+.site-nav{max-width:1000px; margin:0 auto; padding:22px 24px 0}
+.site-nav a{
+  font-family:"IBM Plex Mono",monospace; font-size:.7rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted); border-bottom:0;
+  transition:color .22s ease;
+}
+.site-nav a:hover{color:var(--core)}
+.theme-toggle{
+  position:fixed; top:16px; right:16px; z-index:50;
+  width:36px; height:36px; border-radius:50%; cursor:pointer;
+  background:color-mix(in srgb, var(--surface) 82%, transparent);
+  border:1px solid var(--rule); color:var(--muted);
+  display:grid; place-items:center; padding:0;
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  transition:color .2s ease, border-color .2s ease;
+}
+.theme-toggle:hover{color:var(--core); border-color:var(--core)}
+.theme-toggle svg{width:17px; height:17px; display:block}
+
+/* ---------- hero ---------- */
+header.hero{padding:clamp(52px,10vw,100px) 0 46px; border-bottom:1px solid var(--rule)}
+.hero .eyebrow{display:block; margin-bottom:1.5rem}
+.hero h1{max-width:20ch; margin-bottom:1.5rem}
+.hero-lede{font-size:1.14rem; line-height:1.62; max-width:35rem; margin:0 0 2.6rem}
+.hero-lede b{color:var(--ink); font-weight:600}
+.hero-eq{
+  border-top:1px solid var(--rule); padding-top:1.8rem;
+  display:flex; flex-wrap:wrap; align-items:center; gap:.6rem 2.2rem;
+}
+.hero-eq .cap{
+  font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.02em;
+  color:var(--faint); max-width:17rem; line-height:1.75; margin:0;
+}
+
+/* ---------- sections ---------- */
+section{padding:56px 0 8px; border-bottom:1px solid var(--hair)}
+section:last-of-type{border-bottom:0}
+.sec-head{display:flex; gap:1.15rem; align-items:baseline; max-width:41rem; margin:0 auto 1.5rem}
+.sec-n{
+  font-family:"IBM Plex Mono",monospace; font-size:.75rem; font-weight:500; color:var(--core);
+  letter-spacing:.06em; flex:0 0 auto; padding-top:.55em; font-variant-numeric:tabular-nums;
+}
+.sec-head p{margin:.4rem 0 0; color:var(--muted); font-size:.97rem; line-height:1.5}
+
+/* ---------- figures ---------- */
+figure{margin:2.2rem auto 2rem; max-width:940px}
+.fig-body{background:var(--surface); border:1px solid var(--rule); border-radius:5px; padding:18px 18px 12px; box-shadow:var(--shadow)}
+.fig-grid{display:grid; gap:20px}
+@media(min-width:760px){
+  .fig-grid.two{grid-template-columns:1.35fr 1fr}
+  .fig-grid.three{grid-template-columns:repeat(3,1fr)}
+  .fig-grid.four{grid-template-columns:repeat(4,1fr)}
+}
+.panel-title{
+  font-family:"IBM Plex Mono",monospace; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); margin:0 0 .55rem;
+}
+.panel-title .lit{text-transform:none; font-style:normal}
+.panel-title small{display:block; text-transform:none; letter-spacing:.02em; color:var(--faint); font-size:.95em; margin-top:.15rem}
+.plot{width:100%; overflow-x:auto}
+.plot svg{display:block; width:100%; height:auto}
+figcaption{
+  font-family:"IBM Plex Mono",monospace; font-size:.73rem; line-height:1.6; color:var(--muted);
+  margin-top:.85rem; max-width:44rem;
+}
+figcaption b{color:var(--ink); font-weight:500}
+
+.ax-line{stroke:var(--rule); stroke-width:1; fill:none}
+.ax-tick{stroke:var(--rule); stroke-width:1}
+.grid-line{stroke:var(--hair); stroke-width:1}
+.ax-lbl{fill:var(--faint); font-family:"IBM Plex Mono",monospace; font-size:10px}
+.ax-title{fill:var(--muted); font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase}
+.curve-fill{fill:var(--curve-soft)}
+.curve-line{stroke:var(--curve); stroke-width:1.6; fill:none; stroke-linejoin:round}
+.tail-fill{fill:var(--tail-soft)}
+.core-fill{fill:var(--core-soft)}
+.core-line{stroke:var(--core); stroke-width:1.6; fill:none}
+.diag{stroke:var(--ink); stroke-width:1.1; stroke-dasharray:3 3; opacity:.5; fill:none}
+.ref{stroke:var(--core); stroke-width:1.4; stroke-dasharray:5 4; fill:none}
+.ref2{stroke:var(--tail); stroke-width:1.1; stroke-dasharray:2 4; fill:none}
+.dot{fill:var(--curve); opacity:.5}
+.bar-fill{fill:var(--curve-soft); stroke:var(--curve); stroke-width:1}
+.bar-dim{fill:none; stroke:var(--tail); stroke-width:1; stroke-dasharray:3 3; opacity:.8}
+.anno,.anno-m{paint-order:stroke fill; stroke:var(--surface); stroke-width:3.2px;
+  stroke-linejoin:round; font-family:"IBM Plex Mono",monospace}
+.anno{fill:var(--ink); font-size:10.5px; font-weight:500}
+.anno-m{fill:var(--muted); font-size:10px}
+
+/* ---------- ledger ---------- */
+.ledger-bar{display:flex; height:34px; border-radius:3px; overflow:hidden; border:1px solid var(--rule); background:var(--sunk)}
+.ledger-bar span{display:block}
+.lb-core{background:var(--core-soft); box-shadow:inset 0 0 0 1px var(--core)}
+.lb-head{background:var(--curve-soft); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--curve) 55%,transparent)}
+.lb-tail{background:var(--tail-soft); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tail) 45%,transparent)}
+.ledger-key{
+  display:flex; flex-wrap:wrap; gap:.35rem 1.6rem; margin-top:.7rem;
+  font-family:"IBM Plex Mono",monospace; font-size:.72rem; color:var(--muted);
+}
+.ledger-key i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:.5em}
+.ledger-key .k-core{background:var(--core-soft); box-shadow:inset 0 0 0 1px var(--core)}
+.ledger-key .k-head{background:var(--curve-soft); box-shadow:inset 0 0 0 1px var(--curve)}
+.ledger-key .k-tail{background:var(--tail-soft); box-shadow:inset 0 0 0 1px var(--tail)}
+.ledger-key b{color:var(--ink); font-weight:500}
+
+/* ---------- controls ---------- */
+.controls{display:grid; gap:14px 26px; padding:14px 0 4px; border-top:1px solid var(--hair); margin-top:14px}
+@media(min-width:640px){.controls.c3{grid-template-columns:repeat(3,1fr)} .controls.c2{grid-template-columns:repeat(2,1fr)}}
+.ctl label{
+  display:flex; justify-content:space-between; align-items:baseline; gap:.6rem;
+  font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.05em; color:var(--muted);
+  text-transform:uppercase; margin-bottom:.45rem;
+}
+.ctl label .lit,.readout .rk .lit{text-transform:none; font-style:normal}
+.ctl label b{color:var(--ink); font-weight:500; font-size:.82rem; letter-spacing:0; text-transform:none; font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; background:transparent; height:18px; margin:0; cursor:ew-resize}
+input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--rule); border-radius:2px}
+input[type=range]::-moz-range-track{height:3px; background:var(--rule); border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:15px; height:15px; border-radius:50%;
+  background:var(--core); border:2px solid var(--surface); margin-top:-6px; box-shadow:0 0 0 1px var(--core)}
+input[type=range]::-moz-range-thumb{width:13px; height:13px; border-radius:50%; background:var(--core);
+  border:2px solid var(--surface); box-shadow:0 0 0 1px var(--core)}
+
+.readout{display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--rule);
+  border:1px solid var(--rule); border-radius:4px; overflow:hidden; margin-top:16px}
+@media(min-width:640px){.readout{grid-template-columns:repeat(4,1fr)} .readout.r2{grid-template-columns:repeat(2,1fr)}}
+.readout div{background:var(--surface); padding:11px 13px}
+.readout .rk{font-family:"IBM Plex Mono",monospace; font-size:.66rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); display:block; margin-bottom:.25rem}
+.readout .rv{font-family:"IBM Plex Mono",monospace; font-size:1.28rem; color:var(--ink);
+  font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.readout .rv.accent{color:var(--core)}
+.readout .rn{font-size:.68rem; color:var(--faint); font-family:"IBM Plex Mono",monospace; display:block; margin-top:.2rem}
+
+/* ---------- blocks ---------- */
+.aside{
+  border-left:2px solid var(--core); padding:.15rem 0 .15rem 1.15rem; margin:1.7rem 0;
+  font-size:.97rem; color:var(--muted);
+}
+.aside b{color:var(--ink)}
+table.reading{width:100%; border-collapse:collapse; margin:1.4rem 0; font-size:.94rem}
+table.reading th{text-align:left; font-family:"IBM Plex Mono",monospace; font-size:.66rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); font-weight:500; padding:0 1rem .5rem 0; border-bottom:1px solid var(--rule)}
+table.reading th:first-child{white-space:nowrap}
+table.reading td{padding:.7rem 1rem .7rem 0; border-bottom:1px solid var(--hair); vertical-align:top}
+table.reading td:first-child{white-space:nowrap; font-family:"IBM Plex Mono",monospace; font-size:.84rem; color:var(--ink)}
+table.reading tr:last-child td{border-bottom:0}
+
+.calc{display:flex; flex-wrap:wrap; align-items:center; gap:.8rem; padding:16px 18px; margin:1.8rem 0;
+  background:var(--surface); border:1px solid var(--rule); border-radius:5px; box-shadow:var(--shadow)}
+.calc label{font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.calc input[type=number]{font-family:"IBM Plex Mono",monospace; font-size:1rem; width:8.5rem; padding:.42rem .6rem;
+  background:var(--paper); color:var(--ink); border:1px solid var(--rule); border-radius:3px; font-variant-numeric:tabular-nums}
+.calc .out{font-family:"IBM Plex Mono",monospace; font-size:.92rem; color:var(--muted); flex:1 1 14rem}
+.calc .out b{color:var(--core); font-size:1.15rem; font-weight:500}
+
+footer{padding:48px 0 0; border-top:1px solid var(--rule); margin-top:56px}
+footer p{font-size:.9rem; color:var(--muted); max-width:41rem; margin:0 auto .9rem}
+footer .eyebrow{display:block; max-width:41rem; margin:0 auto 1.1rem}
+
+.reveal{opacity:0; transform:translateY(10px)}
+.reveal.in{opacity:1; transform:none; transition:opacity .6s ease, transform .6s cubic-bezier(.2,.7,.3,1)}
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1; transform:none; transition:none}
+  *{animation-duration:.001ms!important; transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch colour theme">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="currentColor" d="M12 2a10 10 0 1 0 0 20V2z"/>
+    <circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+  </svg>
+</button>
+<nav class="site-nav"><a href="/">&larr; Adversarian</a></nav>
+<div class="wrap">
+
+<header class="hero">
+  <span class="eyebrow">Scientometrics &middot; a coincidence worth explaining</span>
+  <h1>An index built to ignore citation counts, almost entirely determined by them</h1>
+  <p class="hero-lede">The h-index exists because the two obvious ways to score a research career are both easy to cheat. It fixes them. And then, for almost anyone you look up, it lands within a few points of <b>half the square root of their total citations</b> &mdash; the very number it was supposed to improve on. This page works out where that comes from, starting from scratch.</p>
+  <div class="hero-eq">
+    <div>\[ h \approx 0.5\sqrt{N} \]</div>
+    <p class="cap">h &mdash; the h-index.<br>N &mdash; the total across all papers.</p>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head"><span class="sec-n">01</span><div>
+    <h2>Two bad ways to count a career</h2>
+    <p>What the h-index is, and the problem it was invented to solve.</p>
+  </div></div>
+  <div class="prose">
+    <p>Suppose you have to reduce a scientist&rsquo;s output to one number. There are two obvious candidates, and both fall apart immediately.</p>
+    <p><strong>Count the papers.</strong> Then the way to win is to publish two hundred forgettable ones. Quantity is cheap; salami-slicing a result across six short papers beats writing one good long one.</p>
+    <p><strong>Count the citations.</strong> Then one landmark paper &mdash; or one widely-used software tool, or one review that everybody cites out of politeness &mdash; carries an entire career. A researcher with a single 5,000-citation paper and nothing else outranks one with fifty solid papers at eighty citations apiece.</p>
+    <p>Jorge Hirsch&rsquo;s 2005 proposal was to ask for both at once. Rank someone&rsquo;s papers by citation count, most-cited first, and walk down the list until the rank overtakes the citations:</p>
+    <div class="big-eq">\[ h \;=\; \max\,\bigl\{\, i \;:\; c_i \ge i \,\bigr\}, \qquad c_1 \ge c_2 \ge c_3 \ge \cdots \]</div>
+    <p>In words: <strong>you have an h-index of 20 if and only if twenty separate papers have each been cited at least twenty times.</strong> Everything else about your record is invisible to it.</p>
+  </div>
+
+  <figure>
+    <div class="fig-body">
+      <p class="panel-title">Working it out by hand<small>eight papers, ranked by citations</small></p>
+      <div class="plot" id="p-worked"></div>
+    </div>
+    <figcaption><b>Fig. 1</b> &mdash; Each bar is one paper. The gold notch on each row marks that paper&rsquo;s rank. A paper counts if its bar reaches past its own notch. Six do; the seventh has 3 citations at rank 7 and fails, and once one row fails every row after it fails too. So h&nbsp;=&nbsp;6 &mdash; six papers with at least six citations each.</figcaption>
+  </figure>
+
+  <div class="prose">
+    <p>That single test does the work of both counters. Publishing two hundred uncited papers adds nothing, because a paper only counts once it clears its own rank. And a single blockbuster raises h by at most one, no matter how enormous it gets, because it is still just one paper. The metric is deliberately blind to how big your biggest hit is.</p>
+    <p class="aside">Which makes it all the more suspicious that the total citation count &mdash; a number dominated by exactly that biggest hit &mdash; should predict it at all.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-n">02</span><div>
+    <h2>The coincidence</h2>
+    <p>Four careers with nothing in common, and a rule that knows only one number.</p>
+  </div></div>
+  <div class="prose">
+    <p>Here are four researchers. Their paper counts differ by a factor of fifteen, their citation totals by a factor of twenty, and their citation curves look nothing alike. Against each, the crudest possible prediction: take the total citation count, square-root it, halve it.</p>
+  </div>
+
+  <figure>
+    <div class="fig-body">
+      <div class="fig-grid four" id="careers-row"></div>
+      <div style="margin-top:22px">
+        <p class="panel-title">Predicted <i class="lit">h</i> against actual <i class="lit">h</i></p>
+        <div class="plot" id="p-dumbbell"></div>
+      </div>
+    </div>
+    <figcaption><b>Fig. 2</b> &mdash; Top: each career&rsquo;s citation curve, each scaled to its own h-square so the shapes are comparable; the top papers run off the top of every panel, marked by the bar there. Note how much of the plot the gold square covers &mdash; nearly all of it for the 24-paper theorist, a narrow strip for the 280-paper collaborator. Bottom: hollow gold marks what <span class="mono">0.5&radic;N</span> predicts, filled teal marks the real h. Three of the four land within about 10%. The theorist does not &mdash; and by <span class="mono">&sect;&thinsp;08</span> the shape of that first panel will be enough to say why.</figcaption>
+  </figure>
+
+  <div class="prose">
+    <p>Three careers out of four, predicted to within a rank or two by a rule that never asks how many papers you wrote, how they were distributed, what field you are in, or how long you have been working. That is the thing to explain. And there are really two questions hiding inside it:</p>
+    <p><strong>Why a square root at all?</strong> That one turns out to be almost forced, and the next section disposes of it in a paragraph.</p>
+    <p><strong>Why one half?</strong> That is the real question. The coefficient is not a mathematical constant &mdash; it is a measurement, and what it measures is the shape that nearly every citation curve happens to have.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-n">03</span><div>
+    <h2>Both numbers live on one plot</h2>
+    <p>h is a length. N is an area. The square root follows from that alone.</p>
+  </div></div>
+  <div class="prose">
+    <p>Take the ranked list from &sect;&thinsp;01 and plot it: rank along the bottom, citations up the side. Now both quantities are visible at once.</p>
+    <p><strong>N</strong>, the total citation count, is the <em>area</em> under the curve &mdash; you are adding up one bar per paper. <strong>h</strong> is where the curve crosses the diagonal <span class="mono">y&nbsp;=&nbsp;x</span>, which is exactly the <span class="mono">c<sub>i</sub>&nbsp;&ge;&nbsp;i</span> test drawn as a picture.</p>
+    <p>So one is a length and the other is an area. A square-root relation between them is not a coincidence waiting to be explained; it is the only dimensionally sensible thing that could happen. Double every citation count on the page and N quadruples while h merely doubles.</p>
+  </div>
+
+  <figure>
+    <div class="fig-body">
+      <div class="fig-grid two">
+        <div>
+          <p class="panel-title">Full profile<small>60 papers, 2,500 citations</small></p>
+          <div class="plot" id="p-anatomy-a"></div>
+        </div>
+        <div>
+          <p class="panel-title">Zoomed to the crossing</p>
+          <div class="plot" id="p-anatomy-b"></div>
+        </div>
+      </div>
+      <div style="margin-top:20px" id="ledger-anatomy"></div>
+    </div>
+    <figcaption><b>Fig. 3</b> &mdash; A typical citation profile. Left: the honest view &mdash; the gold h-square is a thin sliver against the spike of the top few papers, and that is not a drawing problem, it is the finding. Right: the same data zoomed to a 2h&thinsp;&times;&thinsp;2h window, where the curve visibly crosses the diagonal. The bar underneath splits the citation area three ways.</figcaption>
+  </figure>
+
+  <div class="prose">
+    <p>The picture also hands over the one part of this that is a theorem rather than an observation. Each of the top h papers has, by definition, at least h citations, so the h&thinsp;&times;&thinsp;h square in the corner sits entirely underneath the curve and its area cannot exceed the total:</p>
+    <div class="big-eq">\[ h^2 \le N \qquad\Longrightarrow\qquad h \le \sqrt{N} \]</div>
+    <p>That much is airtight, for everyone, always. Equality would need a perfectly square profile &mdash; every one of the top h papers holding exactly h citations, and not one citation anywhere else. Nobody has that. So the coefficient is somewhere below 1, and the only remaining question is how far below.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-n">04</span><div>
+    <h2>Where the other three quarters go</h2>
+    <p>Two leaks: the blockbusters above the square, and the long tail beside it.</p>
+  </div></div>
+  <div class="prose">
+    <p>Every citation that is <em>not</em> inside the square falls into one of exactly two regions. The <strong style="color:var(--curve)">head</strong> is the excess above the square&rsquo;s top edge &mdash; the handful of papers cited far more than h times. The <strong style="color:var(--tail)">tail</strong> is everything to the right of rank h &mdash; papers with a few citations each that will never lift h by even one.</p>
+    <p>Hirsch&rsquo;s original observation was that across real careers those leaks are remarkably consistent in size:</p>
+    <div class="big-eq">\[ N \approx a\,h^2, \qquad a \approx 3\text{–}5 \]</div>
+    <p>Take <span class="mono">a&nbsp;=&nbsp;4</span> and invert it: the square holds a quarter of the citations, and <span class="mono">h&nbsp;=&nbsp;0.5&radic;N</span>. So the entire content of the coefficient is a claim about how much of a career&rsquo;s citation mass sits outside the square. Drag the skew slider to see how hard you have to distort a profile to move it.</p>
+  </div>
+
+  <figure>
+    <div class="fig-body">
+      <p class="panel-title">Same total citations, different shape</p>
+      <div class="plot" id="p-shape"></div>
+      <div class="controls c3">
+        <div class="ctl">
+          <label for="s-alpha"><span>Skew <i class="lit">&alpha;</i></span> <b id="v-alpha">1.00</b></label>
+          <input type="range" id="s-alpha" min="0.35" max="1.85" step="0.01" value="1.00">
+        </div>
+        <div class="ctl">
+          <label for="s-papers">Papers <b id="v-papers">60</b></label>
+          <input type="range" id="s-papers" min="12" max="320" step="1" value="60">
+        </div>
+        <div class="ctl">
+          <label for="s-cites">Citations <b id="v-cites">2,500</b></label>
+          <input type="range" id="s-cites" min="200" max="20000" step="50" value="2500">
+        </div>
+      </div>
+      <div class="readout">
+        <div><span class="rk">h-index</span><span class="rv" id="r-h">23</span></div>
+        <div><span class="rk">&radic;N ceiling</span><span class="rv" id="r-sqrt">50.0</span></div>
+        <div><span class="rk">actual h / &radic;N</span><span class="rv accent" id="r-ratio">0.46</span><span class="rn" id="r-verdict">typical</span></div>
+        <div><span class="rk">rule predicts</span><span class="rv" id="r-pred">25</span><span class="rn">0.5&radic;N</span></div>
+      </div>
+      <div style="margin-top:18px" id="ledger-shape"></div>
+    </div>
+    <figcaption><b>Fig. 4</b> &mdash; Citation totals stay wherever you set them; only the <em>shape</em> changes. At low skew the profile is flat, the square swells toward the whole area, and h climbs past 0.6&radic;N. At high skew a couple of blockbusters swallow the page, the square shrinks, and h falls below 0.3&radic;N. Real profiles cluster near <span class="mono">&alpha;&nbsp;&asymp;&nbsp;1</span> &mdash; and that is where 0.5 lives. The y-axis is scaled to the h-square rather than to the top paper, so the blockbusters run off the top; how many is marked.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-n">05</span><div>
+    <h2>A second route, with no geometry at all</h2>
+    <p>The same square root falls out of nothing but the passage of time.</p>
+  </div></div>
+  <div class="prose">
+    <p>Put the plot away. Suppose someone publishes <em>p</em> papers a year, and every paper accrues <em>c</em> citations a year, steadily, forever. After <em>t</em> years:</p>
+    <p><strong>Citations grow quadratically.</strong> Papers accumulate linearly and each one&rsquo;s citations accumulate linearly, so the running total is the area of a triangle.</p>
+    <p><strong>h grows linearly.</strong> A paper of age <em>a</em> has <span class="mono">ca</span> citations, so the number of papers with at least <em>x</em> citations is <span class="mono">p(t&nbsp;&minus;&nbsp;x/c)</span>. Setting that equal to <em>x</em> and solving gives a straight line in time.</p>
+    <div class="big-eq">\[ N = \tfrac{1}{2}\,p\,c\,t^{2}, \qquad h = \frac{p\,c\,t}{p+c} \]</div>
+    <p>Eliminate <em>t</em> between the two and the square root appears on its own, dragging a coefficient you can read straight off:</p>
+    <div class="big-eq">\[ \frac{h}{\sqrt{N}} \;=\; \frac{\sqrt{2pc}}{p+c} \]</div>
+    <p>That expression peaks at <span class="mono">&radic;2/2&nbsp;&asymp;&nbsp;0.707</span> when the two rates are equal, and sags whenever they are badly mismatched. Realistic values land in the 0.4&ndash;0.7 band. Two unrelated arguments &mdash; one geometric, one purely about accumulation &mdash; converging on the same coefficient is the point at which the rule stops looking like a fluke.</p>
+  </div>
+
+  <figure>
+    <div class="fig-body">
+      <div class="fig-grid three">
+        <div><p class="panel-title"><i class="lit">h</i> vs. career year</p><div class="plot" id="p-g1"></div></div>
+        <div><p class="panel-title"><i class="lit">N</i> vs. career year</p><div class="plot" id="p-g2"></div></div>
+        <div><p class="panel-title"><i class="lit">h</i> vs. <i class="lit">&radic;N</i></p><div class="plot" id="p-g3"></div></div>
+      </div>
+      <div class="controls c2">
+        <div class="ctl">
+          <label for="s-p">Papers per year <b id="v-p">2.0</b></label>
+          <input type="range" id="s-p" min="0.5" max="20" step="0.1" value="2">
+        </div>
+        <div class="ctl">
+          <label for="s-c">Citations / paper / year <b id="v-c">12.0</b></label>
+          <input type="range" id="s-c" min="0.5" max="40" step="0.1" value="12">
+        </div>
+      </div>
+      <div class="readout r2">
+        <div><span class="rk">coefficient <i class="lit">&radic;(2pc)/(p+c)</i></span><span class="rv accent" id="r-coef">0.495</span></div>
+        <div><span class="rk">after 25 years</span><span class="rv" id="r-25">h 43 &middot; N 7,500</span></div>
+      </div>
+    </div>
+    <figcaption><b>Fig. 5</b> &mdash; Left and centre: linear against quadratic, from the same steady career. Right: plotting h against &radic;N straightens the relation into a line through the origin, with the dashed gold reference at exactly 0.5. Push the two rates apart and the line tilts away from the reference; set them equal and it hits its ceiling of 0.707.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-n">06</span><div>
+    <h2>How tight is &ldquo;&asymp;&rdquo;?</h2>
+    <p>Tight enough to be useful, loose enough that outliers mean something.</p>
+  </div></div>
+  <div class="prose">
+    <p>Below are 320 synthetic careers &mdash; paper counts from 12 to 350, varied skew, varied productivity &mdash; with h computed exactly from each profile rather than fitted. The point is not that reality looks like this. It is that a mechanism this crude already reproduces the law, scatter and all, once its skew is set to match the one number Hirsch actually measured.</p>
+  </div>
+  <figure>
+    <div class="fig-body"><div class="plot" id="p-scatter"></div></div>
+    <figcaption><b>Fig. 6</b> &mdash; <b>Synthetic data, not real careers.</b> Skew was calibrated so the population reproduces Hirsch&rsquo;s observed <span class="mono">N/h&sup2;</span> range of 3&ndash;5; the coefficient is then whatever falls out. Every point sits under the hard &radic;N ceiling, as it must. Median coefficient <b id="fit-med">&mdash;</b>, with 80% of careers between <b id="fit-band">&mdash;</b>. The single origin-fit line, <b id="fit-slope">&mdash;</b>&thinsp;&radic;N, sits a little lower because the biggest careers pull it down &mdash; which is the drift the next section is about.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-n">07</span><div>
+    <h2>Why one constant survives a whole career</h2>
+    <p>The correction is real, but it hides inside a logarithm.</p>
+  </div></div>
+  <div class="prose">
+    <p>A rule of thumb that needed recalibrating every five years would be useless. This one does drift &mdash; just very slowly. Work out the case where citations fall off as <span class="mono">1/rank</span>: the crossing condition gives <span class="mono">C&nbsp;=&nbsp;h&sup2;</span>, and the total is then a harmonic sum over the P papers, so</p>
+    <div class="big-eq">\[ h \;=\; \sqrt{\frac{N}{H_P}}\,, \qquad H_P=\sum_{r=1}^{P}\frac{1}{r} \;\approx\; \ln P + 0.577 \]</div>
+    <p>The paper count enters only through a logarithm, and then only under another square root. Going from 30 papers to 300 &mdash; a tenfold career &mdash; moves the coefficient from about 0.50 to 0.40. That is the entire drift, and it is why the collaborator in Fig.&nbsp;2 came in 11% under prediction while the mid-career experimentalist was almost exact.</p>
+  </div>
+  <figure>
+    <div class="fig-body">
+      <p class="panel-title">Predicted coefficient vs. number of papers</p>
+      <div class="plot" id="p-const"></div>
+    </div>
+    <figcaption><b>Fig. 7</b> &mdash; <span class="mono">1/&radic;H<sub>P</sub></span> on a logarithmic paper-count axis. Over the band where most working scientists actually sit (shaded, 30&ndash;300 papers) the coefficient stays between 0.40 and 0.50 &mdash; and 0.5 sits at the top of it, which is why the rule flatters long careers slightly.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-n">08</span><div>
+    <h2>Reading the deviation</h2>
+    <p>Back to the four careers &mdash; including the one that broke the rule.</p>
+  </div></div>
+  <div class="prose">
+    <p>Everything above adds up to a way of using the rule that is more interesting than the rule itself. <span class="mono">0.5&radic;N</span> is a <em>null model</em>: it is what h would be if your citation curve had the shape almost everyone&rsquo;s does. Compute it, compare it to the real h, and the direction of the gap tells you the shape.</p>
+    <table class="reading">
+      <thead><tr><th>Where h lands</th><th>What the profile looks like</th></tr></thead>
+      <tbody>
+        <tr><td>h &gt; 0.6&thinsp;&radic;N</td><td>Unusually even. Many comparable papers, few duds, no single dominant hit &mdash; or simply a short career, since the coefficient starts high and decays.</td></tr>
+        <tr><td>h &asymp; 0.5&thinsp;&radic;N</td><td>The ordinary case. Nothing to read into it.</td></tr>
+        <tr><td>h &lt; 0.4&thinsp;&radic;N</td><td>Concentrated. Either a landmark result or a widely-used method paper is carrying the total, or the career is long enough that the logarithmic drift has set in. Fig.&nbsp;7 tells you which to suspect.</td></tr>
+      </tbody>
+    </table>
+    <p>Which settles the theorist from &sect;&thinsp;02. Twenty-four papers, 6,200 citations, and an h of 22 against a predicted 39 &mdash; a 44% miss, far too large for the paper-count drift, which at 24 papers runs the wrong way anyway. That leaves concentration, and the first panel of Fig.&nbsp;2 shows it plainly: <strong>a single paper holds 47% of that career&rsquo;s citations,</strong> and the top two hold 63% between them. Those citations pile up in the head, above the square, where h cannot reach them. The metric is working exactly as designed &mdash; it is refusing to let one paper buy a career &mdash; and the size of the gap is the measure of how hard it is refusing.</p>
+    <div class="calc">
+      <label for="calc-n">Total citations</label>
+      <input type="number" id="calc-n" value="2500" min="1" max="9999999" step="1">
+      <span class="out"><span style="white-space:nowrap">&rarr; expect h &asymp; <b id="calc-h">25</b></span> &nbsp;<span style="opacity:.7; white-space:nowrap">(ceiling <span id="calc-c">50</span>; typical range <span id="calc-r">20&ndash;30</span>)</span></span>
+    </div>
+    <p>The last thing worth taking from it is a caution about the metric itself. Inverted, the rule reads <span class="mono">N&nbsp;&asymp;&nbsp;4h&sup2;</span>: every additional point of h-index costs more than the last, and <em>doubling</em> h takes four times the citations.</p>
+  </div>
+  <figure>
+    <div class="fig-body">
+      <p class="panel-title">Citations required to reach a given <i class="lit">h</i></p>
+      <div class="plot" id="p-returns"></div>
+    </div>
+    <figcaption><b>Fig. 8</b> &mdash; Drawn on a linear scale, because the flattening of the small bars <em>is</em> the message. Going from h&nbsp;=&nbsp;40 to h&nbsp;=&nbsp;80 costs more citations than the first 40 points did four times over. That resistance to inflation is the metric working as designed.</figcaption>
+  </figure>
+</section>
+
+<footer>
+  <span class="eyebrow">Caveats worth keeping</span>
+  <p>Only <span class="mono">h&nbsp;&le;&nbsp;&radic;N</span> is a theorem. The 0.5 is an empirical regularity, calibrated on Hirsch&rsquo;s 2005 observation that <span class="mono">N/h&sup2;</span> falls between 3 and 5 across physics careers, and it travels imperfectly: citation norms differ between fields by more than a factor of ten, self-citation and long author lists inflate N without moving h much, and early careers sit off the asymptote entirely. Figures 3&ndash;8 are computed from models rather than from bibliographic data &mdash; they show what the mechanism predicts, not what any particular database contains. The four careers in Fig.&nbsp;2 are constructed archetypes, not real people.</p>
+  <p style="color:var(--faint)">Every number on this page is computed in the browser from the stated model; nothing is hard-coded from memory.</p>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+const NS = "http://www.w3.org/2000/svg";
+const S = (t, a, p) => { const n = document.createElementNS(NS, t); for (const k in a) n.setAttribute(k, a[k]); if (p) p.appendChild(n); return n; };
+const fmt = n => Math.round(n).toLocaleString("en-US");
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const els = id => document.getElementById(id);
+
+/* ---------- citation profile model ---------- */
+function profile(P, N, alpha) {
+  P = Math.max(1, Math.round(P));
+  const s = new Array(P); let sum = 0;
+  for (let r = 1; r <= P; r++) { const v = Math.pow(r, -alpha); s[r - 1] = v; sum += v; }
+  const C = N / sum;
+  const c = s.map(v => v * C);
+  let h = 0;
+  for (let r = 1; r <= P; r++) { if (c[r - 1] >= r) h = r; else break; }
+  let top = 0; for (let r = 0; r < h; r++) top += c[r];
+  const core = h * h, head = Math.max(0, top - core), tail = Math.max(0, N - top);
+  return { c, h, P, N, C, core, head, tail };
+}
+function harmonic(P) { let s = 0; for (let r = 1; r <= P; r++) s += 1 / r; return s; }
+
+/* ---------- chart scaffolding ---------- */
+function frame(host, W, H, pad) {
+  host.innerHTML = "";
+  const svg = S("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, "aria-hidden": "true" }, host);
+  return { svg, L: pad.l, R: W - pad.r, T: pad.t, B: H - pad.b, W, H };
+}
+function ticks(min, max, n) {
+  const span = max - min; if (span <= 0) return [min];
+  const step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0))), norm = step0 / mag;
+  let step = norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7 ? 5 : 10; step *= mag;
+  const out = []; for (let v = Math.ceil(min / step) * step; v <= max + step * 1e-6; v += step) out.push(+v.toPrecision(12));
+  return out;
+}
+function axis(f, X, Y, xd, yd, opt) {
+  const o = opt || {};
+  const xt = o.xticks || ticks(xd[0], xd[1], o.nx || 5);
+  const yt = o.yticks || ticks(yd[0], yd[1], o.ny || 4);
+  yt.forEach(v => {
+    if (v < yd[0] - 1e-9 || v > yd[1] + 1e-9) return;
+    S("line", { class: "grid-line", x1: f.L, x2: f.R, y1: Y(v), y2: Y(v) }, f.svg);
+    S("text", { class: "ax-lbl", x: f.L - 7, y: Y(v) + 3.5, "text-anchor": "end" }, f.svg).textContent = (o.yfmt || fmt)(v);
+  });
+  xt.forEach(v => {
+    if (v < xd[0] - 1e-9 || v > xd[1] + 1e-9) return;
+    S("line", { class: "ax-tick", x1: X(v), x2: X(v), y1: f.B, y2: f.B + 4 }, f.svg);
+    S("text", { class: "ax-lbl", x: X(v), y: f.B + 16, "text-anchor": "middle" }, f.svg).textContent = (o.xfmt || fmt)(v);
+  });
+  S("line", { class: "ax-line", x1: f.L, x2: f.R, y1: f.B, y2: f.B }, f.svg);
+  S("line", { class: "ax-line", x1: f.L, x2: f.L, y1: f.T, y2: f.B }, f.svg);
+  if (o.xtitle) S("text", { class: "ax-title", x: f.R, y: f.H - 4, "text-anchor": "end" }, f.svg).textContent = o.xtitle;
+  if (o.ytitle) S("text", { class: "ax-title", x: 10, y: f.T - 9 }, f.svg).textContent = o.ytitle;
+}
+function txt(f, x, y, s, cls, anchor) {
+  const t = S("text", { class: cls || "anno", x, y, "text-anchor": anchor || "start" }, f.svg);
+  t.textContent = s; return t;
+}
+/* rank r occupies [r-1, r] on x, so the drawn area equals the citation total */
+function stepPath(c, from, to, X, Y, yMax, y0) {
+  let d = `M ${X(from)} ${Y(y0)}`;
+  for (let r = from + 1; r <= to; r++) {
+    const v = Math.min(c[r - 1], yMax);
+    d += ` L ${X(r - 1)} ${Y(v)} L ${X(r)} ${Y(v)}`;
+  }
+  return d + ` L ${X(to)} ${Y(y0)} Z`;
+}
+function ledger(host, pr, label) {
+  const pct = v => 100 * v / pr.N;
+  host.innerHTML = `
+    <div class="ledger-bar" role="img" aria-label="Citation area split">
+      <span class="lb-core" style="flex:${pct(pr.core).toFixed(3)} 0 0"></span>
+      <span class="lb-head" style="flex:${pct(pr.head).toFixed(3)} 0 0"></span>
+      <span class="lb-tail" style="flex:${pct(pr.tail).toFixed(3)} 0 0"></span>
+    </div>
+    <div class="ledger-key">
+      <span><i class="k-core"></i>h-square h&sup2; = <b>${fmt(pr.core)}</b> &middot; ${pct(pr.core).toFixed(0)}%</span>
+      <span><i class="k-head"></i>head, above the square = <b>${fmt(pr.head)}</b> &middot; ${pct(pr.head).toFixed(0)}%</span>
+      <span><i class="k-tail"></i>tail, beyond rank h = <b>${fmt(pr.tail)}</b> &middot; ${pct(pr.tail).toFixed(0)}%</span>
+    </div>${label ? `<div class="ledger-key" style="margin-top:.45rem;color:var(--faint)">${label}</div>` : ""}`;
+}
+
+/* ================= Fig 1 — finding h by hand ================= */
+const EX = [31, 18, 12, 9, 7, 6, 3, 1];
+const EX_N = EX.reduce((a, b) => a + b, 0);
+const EX_H = EX.reduce((h, c, i) => (c >= i + 1 ? i + 1 : h), 0);
+
+function drawWorked(host, W) {
+  const rows = EX.length;
+  const H = Math.round(clamp(W * 0.44, 230, 330));
+  const f = frame(host, W, H, { t: 20, r: 118, b: 36, l: 64 });
+  const xMax = EX[0] * 1.06;
+  const X = v => f.L + v / xMax * (f.R - f.L);
+  const band = (f.B - f.T) / rows;
+  axis(f, X, v => v, [0, xMax], [0, 1], { nx: 5, yticks: [], xtitle: "citations" });
+
+  EX.forEach((c, i) => {
+    const rank = i + 1, pass = c >= rank;
+    const y = f.T + i * band + band * 0.2, hgt = band * 0.6;
+    S("rect", { class: pass ? "bar-fill" : "bar-dim", x: X(0), y, width: Math.max(1.5, X(c) - X(0)), height: hgt }, f.svg);
+    txt(f, f.L - 10, y + hgt / 2 + 4, "#" + rank, "anno-m", "end");
+    // the notch: this paper must reach its own rank
+    S("line", { x1: X(rank), x2: X(rank), y1: y - 3, y2: y + hgt + 3, stroke: "var(--core)", "stroke-width": 2 }, f.svg);
+    txt(f, X(c) + 8, y + hgt / 2 + 4, c + (pass ? "  ≥ " + rank + "  ✓" : "  < " + rank + "  ✗"), pass ? "anno" : "anno-m");
+  });
+  // bracket over the passing rows
+  const bx = f.L - 40, y0 = f.T + band * 0.15, y1 = f.T + EX_H * band - band * 0.15;
+  S("path", { d: `M ${bx + 6} ${y0} L ${bx} ${y0} L ${bx} ${y1} L ${bx + 6} ${y1}`, stroke: "var(--core)", "stroke-width": 1.4, fill: "none" }, f.svg);
+  const lab = S("text", { class: "anno", x: bx - 4, y: (y0 + y1) / 2, "text-anchor": "end", transform: `rotate(-90 ${bx - 4} ${(y0 + y1) / 2})` }, f.svg);
+  lab.textContent = "h = " + EX_H;
+  txt(f, X(xMax), f.T + 4, "notch = rank", "anno-m", "end");
+}
+
+/* ================= Fig 2 — four careers ================= */
+const CAREERS4 = [
+  { name: "Five years in", sub: "18 papers", P: 18, N: 520, a: 0.95 },
+  { name: "The experimentalist", sub: "72 papers", P: 72, N: 3100, a: 0.95 },
+  { name: "The collaborator", sub: "280 papers", P: 280, N: 9800, a: 0.72 },
+  { name: "The theorist", sub: "24 papers", P: 24, N: 6200, a: 1.55 }
+].map(d => { const pr = profile(d.P, d.N, d.a); return { ...d, pr, h: pr.h, rule: 0.5 * Math.sqrt(d.N) }; });
+
+function drawMini(host, W, car) {
+  const H = Math.round(clamp(W * 1.0, 150, 210));
+  const f = frame(host, W, H, { t: 16, r: 8, b: 26, l: 38 });
+  const pr = car.pr, yMax = 3.2 * pr.h;
+  const X = v => f.L + v / pr.P * (f.R - f.L);
+  const Y = v => f.B - clamp(v, 0, yMax) / yMax * (f.B - f.T);
+  axis(f, X, Y, [0, pr.P], [0, yMax], { nx: 3, ny: 3 });
+  S("path", { class: "curve-fill", d: stepPath(pr.c, 0, pr.P, X, Y, yMax, 0) }, f.svg);
+  S("path", { class: "curve-line", d: stepPath(pr.c, 0, pr.P, X, Y, yMax, 0).replace(/ Z$/, "") }, f.svg);
+  S("rect", { class: "core-fill", x: X(0), y: Y(pr.h), width: X(pr.h) - X(0), height: f.B - Y(pr.h) }, f.svg);
+  S("rect", { class: "core-line", x: X(0), y: Y(pr.h), width: X(pr.h) - X(0), height: f.B - Y(pr.h) }, f.svg);
+  S("line", { class: "diag", x1: X(0), y1: Y(0), x2: X(Math.min(pr.P, yMax)), y2: Y(Math.min(pr.P, yMax)) }, f.svg);
+  let cl = 0; for (let r = 0; r < pr.P; r++) if (pr.c[r] > yMax) cl = r + 1;
+  if (cl) S("line", { x1: X(0), y1: f.T, x2: X(cl), y2: f.T, stroke: "var(--curve)", "stroke-width": 2 }, f.svg);
+  txt(f, f.R, f.T - 4, "h = " + pr.h, "anno", "end");
+}
+
+function drawDumbbell(host, W) {
+  const rows = CAREERS4.length;
+  const H = Math.round(clamp(W * 0.30, 180, 250));
+  const f = frame(host, W, H, { t: 20, r: 92, b: 36, l: 132 });
+  const xMax = Math.max(...CAREERS4.map(d => Math.max(d.h, d.rule))) * 1.12;
+  const X = v => f.L + v / xMax * (f.R - f.L);
+  const band = (f.B - f.T) / rows;
+  axis(f, X, v => v, [0, xMax], [0, 1], { nx: 5, yticks: [], xtitle: "h-index" });
+  CAREERS4.forEach((d, i) => {
+    const y = f.T + i * band + band / 2;
+    const err = 100 * (d.h - d.rule) / d.rule;
+    S("line", { x1: X(Math.min(d.h, d.rule)), x2: X(Math.max(d.h, d.rule)), y1: y, y2: y,
+                stroke: "var(--rule)", "stroke-width": 3, "stroke-linecap": "round" }, f.svg);
+    S("circle", { cx: X(d.rule), cy: y, r: 5, fill: "var(--surface)", stroke: "var(--core)", "stroke-width": 2 }, f.svg);
+    S("circle", { cx: X(d.h), cy: y, r: 5, fill: "var(--curve)" }, f.svg);
+    txt(f, f.L - 12, y + 4, d.name, "anno", "end");
+    txt(f, f.R + 8, y + 4, (err > 0 ? "+" : "") + err.toFixed(0) + "%", Math.abs(err) > 20 ? "anno" : "anno-m");
+  });
+  const ly = f.T - 6;
+  S("circle", { cx: f.L + 6, cy: ly, r: 4.5, fill: "var(--surface)", stroke: "var(--core)", "stroke-width": 2 }, f.svg);
+  txt(f, f.L + 15, ly + 4, "0.5√N predicts", "anno-m");
+  S("circle", { cx: f.L + 118, cy: ly, r: 4.5, fill: "var(--curve)" }, f.svg);
+  txt(f, f.L + 127, ly + 4, "actual h", "anno-m");
+}
+
+function buildCareers() {
+  const row = els("careers-row");
+  row.innerHTML = "";
+  CAREERS4.forEach((car, i) => {
+    const cell = document.createElement("div");
+    const share = Math.round(100 * car.pr.c[0] / car.N);
+    cell.innerHTML = `<p class="panel-title">${car.name}<small>${car.sub} &middot; ${fmt(car.N)} citations<br>top paper holds ${share}%</small></p>
+                      <div class="plot" id="p-mini-${i}"></div>`;
+    row.appendChild(cell);
+  });
+  CAREERS4.forEach((car, i) => register("p-mini-" + i, (h, w) => drawMini(h, w, car)));
+}
+
+/* ================= Fig 3 — anatomy ================= */
+const REF = profile(60, 2500, 1.0);
+
+function drawAnatomyFull(host, W) {
+  const H = Math.round(clamp(W * 0.72, 250, 330));
+  const f = frame(host, W, H, { t: 26, r: 14, b: 34, l: 46 });
+  const yMax = REF.c[0] * 1.04;
+  const X = v => f.L + v / REF.P * (f.R - f.L);
+  const Y = v => f.B - v / yMax * (f.B - f.T);
+  axis(f, X, Y, [0, REF.P], [0, yMax], { nx: 6, ny: 4, xtitle: "rank", ytitle: "citations" });
+  S("path", { class: "tail-fill", d: stepPath(REF.c, REF.h, REF.P, X, Y, Infinity, 0) }, f.svg);
+  S("path", { class: "curve-fill", d: stepPath(REF.c, 0, REF.h, X, Y, Infinity, 0) }, f.svg);
+  S("rect", { class: "core-fill", x: X(0), y: Y(REF.h), width: X(REF.h) - X(0), height: f.B - Y(REF.h) }, f.svg);
+  S("rect", { class: "core-line", x: X(0), y: Y(REF.h), width: X(REF.h) - X(0), height: f.B - Y(REF.h) }, f.svg);
+  S("path", { class: "curve-line", d: stepPath(REF.c, 0, REF.P, X, Y, Infinity, 0).replace(/ Z$/, "") }, f.svg);
+  S("line", { class: "diag", x1: X(0), y1: Y(0), x2: X(REF.P), y2: Y(REF.P) }, f.svg);
+  txt(f, X(1.6), Y(REF.c[0]) - 7, "top paper: " + fmt(REF.c[0]), "anno");
+  txt(f, X(REF.h) + 6, Y(REF.h) - 6, "h = " + REF.h, "anno");
+  txt(f, X(REF.P * 0.55), Y(yMax * 0.5), "the h-square is only " + Math.round(100 * REF.core / REF.N) + "%", "anno-m");
+  txt(f, X(REF.P * 0.55), Y(yMax * 0.5) + 13, "of this shaded area", "anno-m");
+}
+function drawAnatomyZoom(host, W) {
+  const H = Math.round(clamp(W * 0.92, 250, 330));
+  const f = frame(host, W, H, { t: 26, r: 14, b: 34, l: 40 });
+  const lim = Math.round(REF.h * 2.2);
+  const X = v => f.L + v / lim * (f.R - f.L);
+  const Y = v => f.B - v / lim * (f.B - f.T);
+  axis(f, X, Y, [0, lim], [0, lim], { nx: 5, ny: 5, xtitle: "rank", ytitle: "citations" });
+  S("path", { class: "tail-fill", d: stepPath(REF.c, REF.h, lim, X, Y, lim, 0) }, f.svg);
+  S("path", { class: "curve-fill", d: stepPath(REF.c, 0, REF.h, X, Y, lim, 0) }, f.svg);
+  S("rect", { class: "core-fill", x: X(0), y: Y(REF.h), width: X(REF.h) - X(0), height: f.B - Y(REF.h) }, f.svg);
+  S("rect", { class: "core-line", x: X(0), y: Y(REF.h), width: X(REF.h) - X(0), height: f.B - Y(REF.h) }, f.svg);
+  S("path", { class: "curve-line", d: stepPath(REF.c, 0, lim, X, Y, lim, 0).replace(/ Z$/, "") }, f.svg);
+  S("line", { class: "diag", x1: X(0), y1: Y(0), x2: X(lim), y2: Y(lim) }, f.svg);
+  S("circle", { cx: X(REF.h), cy: Y(REF.h), r: 3.5, fill: "var(--core)" }, f.svg);
+  txt(f, X(lim * 0.99), Y(lim * 0.92), "y = x", "anno-m", "end");
+  txt(f, X(REF.h) + 9, Y(REF.h) - 8, "h = " + REF.h, "anno");
+  txt(f, X(REF.h * 0.5), Y(REF.h * 0.5), "h² = " + fmt(REF.core), "anno", "middle");
+  let cl = 0; for (let r = 0; r < REF.P; r++) if (REF.c[r] > lim) cl = r + 1;
+  S("line", { class: "ref2", x1: X(0), y1: f.T, x2: X(cl), y2: f.T, stroke: "var(--curve)", "stroke-width": 2 }, f.svg);
+  txt(f, X(cl) + 6, f.T + 4, "↑ " + cl + " off-scale", "anno-m");
+}
+
+/* ================= Fig 4 — interactive shape ================= */
+let shapeState = { alpha: 1.0, P: 60, N: 2500 };
+function drawShape(host, W) {
+  const st = shapeState, pr = profile(st.P, st.N, st.alpha);
+  const H = Math.round(clamp(W * 0.46, 240, 400));
+  const f = frame(host, W, H, { t: 26, r: 16, b: 36, l: 54 });
+  // scaled to the reference h so the square stays legible and the axis holds
+  // still while the skew slider is being dragged
+  const yMax = Math.max(3.2 * profile(st.P, st.N, 1).h, pr.h * 1.35, 4);
+  const X = v => f.L + v / pr.P * (f.R - f.L);
+  const Y = v => f.B - clamp(v, 0, yMax) / yMax * (f.B - f.T);
+  axis(f, X, Y, [0, pr.P], [0, yMax], { nx: 6, ny: 4, xtitle: "papers ranked by citations", ytitle: "citations" });
+  S("path", { class: "tail-fill", d: stepPath(pr.c, pr.h, pr.P, X, Y, yMax, 0) }, f.svg);
+  S("path", { class: "curve-fill", d: stepPath(pr.c, 0, pr.h, X, Y, yMax, 0) }, f.svg);
+  S("rect", { class: "core-fill", x: X(0), y: Y(pr.h), width: X(pr.h) - X(0), height: f.B - Y(pr.h) }, f.svg);
+  S("rect", { class: "core-line", x: X(0), y: Y(pr.h), width: X(pr.h) - X(0), height: f.B - Y(pr.h) }, f.svg);
+  S("path", { class: "curve-line", d: stepPath(pr.c, 0, pr.P, X, Y, yMax, 0).replace(/ Z$/, "") }, f.svg);
+  const dl = Math.min(pr.P, yMax);
+  S("line", { class: "diag", x1: X(0), y1: Y(0), x2: X(dl), y2: Y(dl) }, f.svg);
+  let clipped = 0; for (let r = 0; r < pr.P; r++) if (pr.c[r] > yMax) clipped = r + 1;
+  if (clipped > 0) {
+    S("line", { class: "ref2", x1: X(0), y1: f.T, x2: X(clipped), y2: f.T, stroke: "var(--curve)", "stroke-width": 2 }, f.svg);
+    txt(f, X(clipped) + 6, f.T + 4, "↑ " + clipped + (clipped === 1 ? " paper" : " papers") + " off-scale, top = " + fmt(pr.c[0]), "anno-m");
+  }
+  if (pr.h > 0) {
+    S("circle", { cx: X(pr.h), cy: Y(pr.h), r: 3.5, fill: "var(--core)" }, f.svg);
+    txt(f, X(pr.h) + 7, Y(pr.h) - 7, "h = " + pr.h, "anno");
+  }
+  return pr;
+}
+function updateShape() {
+  const st = shapeState, pr = redraw("p-shape");
+  els("v-alpha").textContent = st.alpha.toFixed(2);
+  els("v-papers").textContent = fmt(st.P);
+  els("v-cites").textContent = fmt(st.N);
+  const root = Math.sqrt(st.N), ratio = pr.h / root;
+  els("r-h").textContent = fmt(pr.h);
+  els("r-sqrt").textContent = root.toFixed(1);
+  els("r-ratio").textContent = ratio.toFixed(2);
+  els("r-pred").textContent = fmt(0.5 * root);
+  els("r-verdict").textContent = ratio > 0.6 ? "unusually even" : ratio < 0.4 ? "concentrated" : "typical";
+  ledger(els("ledger-shape"), pr, `${fmt(pr.P)} papers &middot; ${fmt(pr.N)} citations &middot; skew &alpha; = ${st.alpha.toFixed(2)}`);
+}
+
+/* ================= Fig 5 — career growth ================= */
+let growth = { p: 2, c: 12 };
+const gT = 25;
+const gH = t => t * growth.p * growth.c / (growth.p + growth.c);
+const gN = t => growth.p * growth.c * t * t / 2;
+const smallFrame = (host, W) => frame(host, W, Math.round(clamp(W * 0.86, 190, 260)), { t: 22, r: 12, b: 32, l: 44 });
+
+function drawG1(host, W) {
+  const f = smallFrame(host, W), yMax = Math.max(gH(gT) * 1.08, 1);
+  const X = t => f.L + t / gT * (f.R - f.L), Y = v => f.B - v / yMax * (f.B - f.T);
+  axis(f, X, Y, [0, gT], [0, yMax], { nx: 4, ny: 4, xtitle: "years" });
+  S("path", { class: "curve-fill", d: `M ${X(0)} ${Y(0)} L ${X(gT)} ${Y(gH(gT))} L ${X(gT)} ${Y(0)} Z` }, f.svg);
+  S("path", { class: "curve-line", d: `M ${X(0)} ${Y(0)} L ${X(gT)} ${Y(gH(gT))}` }, f.svg);
+  txt(f, f.L + 8, f.T + 12, "linear", "anno");
+}
+function drawG2(host, W) {
+  const f = smallFrame(host, W), yMax = Math.max(gN(gT) * 1.08, 1);
+  const X = t => f.L + t / gT * (f.R - f.L), Y = v => f.B - v / yMax * (f.B - f.T);
+  axis(f, X, Y, [0, gT], [0, yMax], { nx: 4, ny: 4, xtitle: "years" });
+  let d = `M ${X(0)} ${Y(0)}`;
+  for (let i = 1; i <= 100; i++) { const t = gT * i / 100; d += ` L ${X(t)} ${Y(gN(t))}`; }
+  S("path", { class: "curve-fill", d: d + ` L ${X(gT)} ${Y(0)} Z` }, f.svg);
+  S("path", { class: "curve-line", d }, f.svg);
+  txt(f, f.L + 8, f.T + 12, "quadratic", "anno");
+}
+function drawG3(host, W) {
+  const f = smallFrame(host, W);
+  const rN = Math.sqrt(gN(gT)), yMax = Math.max(gH(gT), 0.5 * rN) * 1.12, xMax = rN * 1.06;
+  const X = v => f.L + v / xMax * (f.R - f.L), Y = v => f.B - v / yMax * (f.B - f.T);
+  axis(f, X, Y, [0, xMax], [0, yMax], { nx: 4, ny: 4, xtitle: "√N" });
+  const refY = Math.min(0.5 * xMax, yMax);
+  S("path", { class: "ref", d: `M ${X(0)} ${Y(0)} L ${X(refY * 2)} ${Y(refY)}` }, f.svg);
+  S("path", { class: "curve-line", d: `M ${X(0)} ${Y(0)} L ${X(rN)} ${Y(gH(gT))}` }, f.svg);
+  S("circle", { cx: X(rN), cy: Y(gH(gT)), r: 3.5, fill: "var(--curve)" }, f.svg);
+  txt(f, f.R - 4, f.T + 12, "0.5√N", "anno-m", "end");
+}
+function updateGrowth() {
+  els("v-p").textContent = growth.p.toFixed(1);
+  els("v-c").textContent = growth.c.toFixed(1);
+  redraw("p-g1"); redraw("p-g2"); redraw("p-g3");
+  els("r-coef").textContent = (Math.sqrt(2 * growth.p * growth.c) / (growth.p + growth.c)).toFixed(3);
+  els("r-25").textContent = "h " + fmt(gH(gT)) + " · N " + fmt(gN(gT));
+}
+
+/* ================= Fig 6 — synthetic scatter ================= */
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const SYNTH = (() => {
+  const rnd = mulberry32(20260831);
+  const norm = (m, s) => { let u = 0, v = 0; while (u === 0) u = rnd(); while (v === 0) v = rnd(); return m + s * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const out = [];
+  for (let i = 0; i < 320; i++) {
+    const P = Math.round(Math.exp(Math.log(12) + rnd() * (Math.log(350) - Math.log(12))));
+    const alpha = clamp(norm(0.80, 0.20), 0.45, 1.75);
+    const N = Math.max(20, Math.round(P * Math.exp(norm(Math.log(22), 0.62))));
+    const pr = profile(P, N, alpha);
+    if (pr.h >= 2) out.push({ x: Math.sqrt(N), y: pr.h });
+  }
+  return out;
+})();
+function drawScatter(host, W) {
+  const H = Math.round(clamp(W * 0.5, 260, 420));
+  const f = frame(host, W, H, { t: 26, r: 18, b: 38, l: 50 });
+  const xMax = Math.max(...SYNTH.map(d => d.x)) * 1.05;
+  const yMax = 0.78 * xMax;   // no career reaches the ceiling; don't plot the void
+  const X = v => f.L + v / xMax * (f.R - f.L), Y = v => f.B - v / yMax * (f.B - f.T);
+  axis(f, X, Y, [0, xMax], [0, yMax], { nx: 6, ny: 5, xtitle: "√N  (square root of total citations)", ytitle: "h-index" });
+  S("path", { class: "ref2", d: `M ${X(0)} ${Y(0)} L ${X(yMax)} ${Y(yMax)}` }, f.svg);
+  S("path", { class: "ref", d: `M ${X(0)} ${Y(0)} L ${X(xMax)} ${Y(0.5 * xMax)}` }, f.svg);
+  SYNTH.forEach(d => S("circle", { class: "dot", cx: X(d.x), cy: Y(d.y), r: 2.6 }, f.svg));
+  let sxy = 0, sxx = 0; SYNTH.forEach(d => { sxy += d.x * d.y; sxx += d.x * d.x; });
+  const slope = sxy / sxx;
+  const rr = SYNTH.map(d => d.y / d.x).sort((a, b) => a - b);
+  const q = t => rr[Math.min(rr.length - 1, Math.floor(t * rr.length))];
+  S("path", { class: "curve-line", d: `M ${X(0)} ${Y(0)} L ${X(xMax)} ${Y(slope * xMax)}` }, f.svg);
+  txt(f, X(yMax * 0.90), Y(yMax * 0.90) - 8, "hard ceiling  h = √N", "anno-m", "end");
+  txt(f, X(xMax) - 4, Y(0.5 * xMax) - 9, "rule  h = 0.5√N", "anno", "end");
+  txt(f, X(xMax) - 4, Y(slope * xMax) + 17, "fit  " + slope.toFixed(3) + "√N", "anno-m", "end");
+  if (els("fit-slope")) els("fit-slope").textContent = slope.toFixed(3);
+  if (els("fit-med")) els("fit-med").textContent = q(0.5).toFixed(2);
+  if (els("fit-band")) els("fit-band").textContent = q(0.1).toFixed(2) + "–" + q(0.9).toFixed(2);
+}
+
+/* ================= Fig 7 — coefficient stability ================= */
+function drawConst(host, W) {
+  const H = Math.round(clamp(W * 0.34, 210, 300));
+  const f = frame(host, W, H, { t: 26, r: 18, b: 38, l: 50 });
+  const lo = Math.log10(10), hi = Math.log10(1000);
+  const X = P => f.L + (Math.log10(P) - lo) / (hi - lo) * (f.R - f.L);
+  const yd = [0.3, 0.65];
+  const Y = v => f.B - (v - yd[0]) / (yd[1] - yd[0]) * (f.B - f.T);
+  axis(f, X, Y, [10, 1000], yd, {
+    xticks: [10, 20, 50, 100, 200, 500, 1000], yticks: [0.3, 0.4, 0.5, 0.6],
+    yfmt: v => v.toFixed(1), xtitle: "papers  (log scale)", ytitle: "coefficient"
+  });
+  S("rect", { x: X(30), y: f.T, width: X(300) - X(30), height: f.B - f.T, fill: "var(--core-soft)", opacity: .45 }, f.svg);
+  txt(f, (X(30) + X(300)) / 2, f.T + 13, "most working scientists", "anno-m", "middle");
+  let d = "";
+  for (let i = 0; i <= 160; i++) {
+    const P = Math.round(Math.pow(10, lo + (hi - lo) * i / 160));
+    d += (i ? " L " : "M ") + X(P) + " " + Y(1 / Math.sqrt(harmonic(P)));
+  }
+  S("path", { class: "curve-line", d }, f.svg);
+  S("path", { class: "ref", d: `M ${f.L} ${Y(0.5)} L ${f.R} ${Y(0.5)}` }, f.svg);
+  txt(f, f.R - 4, Y(0.5) - 7, "0.5", "anno", "end");
+  [[30, "30 papers"], [300, "300 papers"]].forEach(([P, lbl]) => {
+    const v = 1 / Math.sqrt(harmonic(P));
+    S("circle", { cx: X(P), cy: Y(v), r: 3.5, fill: "var(--curve)" }, f.svg);
+    txt(f, X(P) + 7, Y(v) + (P === 30 ? -8 : 14), lbl + " → " + v.toFixed(2), "anno");
+  });
+}
+
+/* ================= Fig 8 — diminishing returns ================= */
+function drawReturns(host, W) {
+  const rows = [10, 20, 40, 80].map(h => ({ h, N: 4 * h * h }));
+  const H = Math.round(clamp(W * 0.30, 180, 260));
+  const f = frame(host, W, H, { t: 22, r: 18, b: 36, l: 62 });
+  const xMax = rows[rows.length - 1].N * 1.12;
+  const X = v => f.L + v / xMax * (f.R - f.L);
+  const band = (f.B - f.T) / rows.length;
+  axis(f, X, v => v, [0, xMax], [0, 1], { nx: 5, yticks: [], xtitle: "citations required" });
+  rows.forEach((r, i) => {
+    const y = f.T + i * band + band * 0.22, hgt = band * 0.56;
+    S("rect", { class: "bar-fill", x: X(0), y, width: Math.max(1.5, X(r.N) - X(0)), height: hgt }, f.svg);
+    txt(f, f.L - 9, y + hgt / 2 + 4, "h = " + r.h, "anno", "end");
+    txt(f, X(r.N) + 7, y + hgt / 2 + 4, fmt(r.N), "anno-m");
+  });
+}
+
+/* ================= render registry ================= */
+const REGISTRY = [];
+function register(id, draw) { const host = els(id); if (host) REGISTRY.push({ id, host, draw }); }
+const widthOf = host => Math.round(clamp(host.clientWidth || 640, 260, 940));
+function redraw(id) { const f = REGISTRY.find(r => r.id === id); return f ? f.draw(f.host, widthOf(f.host)) : undefined; }
+function renderAll() { REGISTRY.forEach(f => f.draw(f.host, widthOf(f.host))); }
+
+buildCareers();
+register("p-worked", drawWorked);
+register("p-dumbbell", drawDumbbell);
+register("p-anatomy-a", drawAnatomyFull);
+register("p-anatomy-b", drawAnatomyZoom);
+register("p-shape", drawShape);
+register("p-g1", drawG1);
+register("p-g2", drawG2);
+register("p-g3", drawG3);
+register("p-scatter", drawScatter);
+register("p-const", drawConst);
+register("p-returns", drawReturns);
+
+ledger(els("ledger-anatomy"), REF);
+
+els("s-alpha").addEventListener("input", e => { shapeState.alpha = +e.target.value; updateShape(); });
+els("s-papers").addEventListener("input", e => { shapeState.P = +e.target.value; updateShape(); });
+els("s-cites").addEventListener("input", e => { shapeState.N = +e.target.value; updateShape(); });
+els("s-p").addEventListener("input", e => { growth.p = +e.target.value; updateGrowth(); });
+els("s-c").addEventListener("input", e => { growth.c = +e.target.value; updateGrowth(); });
+
+const calcN = els("calc-n");
+function updateCalc() {
+  const N = Math.max(1, +calcN.value || 0), root = Math.sqrt(N);
+  els("calc-h").textContent = fmt(0.5 * root);
+  els("calc-c").textContent = fmt(root);
+  els("calc-r").textContent = fmt(0.4 * root) + "–" + fmt(0.6 * root);
+}
+calcN.addEventListener("input", updateCalc);
+
+let raf = null;
+new ResizeObserver(() => { if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(renderAll); }).observe(document.body);
+
+function boot() {
+  if (window.renderMathInElement) renderMathInElement(document.body, {
+    delimiters: [{ left: "\\[", right: "\\]", display: true }, { left: "\\(", right: "\\)", display: false }],
+    throwOnError: false
+  });
+  renderAll(); updateShape(); updateGrowth(); updateCalc();
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(boot); else boot();
+
+const toggle = els("theme-toggle");
+if (toggle) toggle.addEventListener("click", () => {
+  const stamped = document.documentElement.getAttribute("data-theme");
+  const current = stamped || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const next = current === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("theme", next); } catch (e) { }
+});
+
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -8% 0px" });
+document.querySelectorAll("figure, .prose, .sec-head").forEach((n, i) => { n.classList.add("reveal"); n.style.transitionDelay = (i % 3) * 40 + "ms"; io.observe(n); });
+</script>
+</body>
+</html>

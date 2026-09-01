@@ -1,34 +1,50 @@
-# ParticleGround-Portfolio
+# adversarian.github.io
 
-A particle-theme template as a landing page for your portfolio.
+Personal page, plus **Notes** — write-ups of things I wanted to understand
+properly, worked all the way down with figures that compute themselves in the
+browser rather than being drawn by hand.
 
-> [Demo](https://landing-page--itsron717.repl.co/)
+Live at <https://adversarian.github.io>.
 
-<img src="particle_demo/particle_demo.png"/>
+## Layout
 
-# Using the Template
+```
+index.html                          landing page + notes index
+css/style.css                       shared design tokens (palette, type)
+js/demo.js                          particle field + theme switching
+js/jquery.particleground.js         vendored, unmodified
+notes/<slug>/index.html             one self-contained note per directory
+```
 
-  - Fork and Clone the repository
+Each note is a single standalone HTML file: its own styles, its own scripts,
+no build step. Drop a directory under `notes/` and add a row to the index.
 
-    ```
-    $ git clone https://github.com/itsron717/ParticleGround-Portfolio.git
-    ```
- 
-  - Go inside the main repository
-  
-    ```
-    $ cd ParticleGround-Portfolio
-    ```
-    
-  - Modify `index.html` to change the names and links to point at your pages.
-  
-  - Upload your resume in the place of `deedy.pdf` (Or One can use the famous deedy template and build on that)
-   
-# Particle Feature
+## Theme
 
-The particle feature was obtained with the help of this [particleground](https://github.com/jnicol/particleground). The changes in the particles such as speed, drift, colour, direction, density, etc. can be modified in `demo.js`. Refer to the above link for more details.
+Light and dark are driven by three states, in this order of precedence:
 
+1. an explicit choice, stored in `localStorage` and stamped as
+   `data-theme="light" | "dark"` on `<html>` before first paint,
+2. otherwise `prefers-color-scheme`,
+3. otherwise light.
 
-# References and Inspiration
+Every colour is a CSS custom property defined on bare `:root` and redefined in
+both the media query and the `[data-theme]` block, so no colour is ever left
+undefined in one of the three states. The particle field reads the resolved
+theme and repaints, since particleground fixes its colours at init.
 
-This template is a minimal form of the [Particle Jekyll Template](https://github.com/nrandecker/particle).
+## Running it locally
+
+No build, no dependencies:
+
+```
+python3 -m http.server 8000
+```
+
+## Credits
+
+The particle background uses [particleground](https://github.com/jnicol/particleground)
+by Jonathan Nicol, vendored unmodified. The original landing page was built
+from [ParticleGround-Portfolio](https://github.com/itsron717/ParticleGround-Portfolio);
+see `LICENSE`. Maths on the notes pages is typeset with
+[KaTeX](https://katex.org/).
